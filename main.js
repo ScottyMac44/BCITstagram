@@ -13,17 +13,23 @@ const path = require("path");
 const IOhandler = require("./IOhandler");
 const zipFilePath = path.join(__dirname, "myfile.zip");
 const pathUnzipped = path.join(__dirname, "unzipped");
-const pathProcessed = path.join(__dirname, "grayscaled");
+const pathProcessed = path.join(__dirname, "output");
+
 
 IOhandler.unzip(zipFilePath, pathUnzipped)
-    .then((result) => {
-        if (result.fileCount > 0) {
-            console.log(`Successfully extracted ${result.fileCount} .png files to ${path.join(__dirname, pathUnzipped)}`);
+    .then((fileCount) => {
+        if (fileCount > 0) {
+            console.log(`Successfully extracted ${fileCount} .png files to ${pathUnzipped}`);
+            return IOhandler.readDir(pathUnzipped);
         } else {
-            console.log(`No .png files were found in\n${path.join(__dirname, zipFilePath)}`);
+            console.log(`No .png files were found in\n${zipFilePath}`);
         }
     })
 
+    .then((dirContents) => {
+        IOhandler.grayScale(dirContents, pathUnzipped, pathProcessed);
+    })
+
     .catch((error) => {
-        console.error('ZIP EXTRACT ERROR: The operation could not be completed\n', error);
+        console.error('ERROR: The operation could not be completed\n', error);
     });
